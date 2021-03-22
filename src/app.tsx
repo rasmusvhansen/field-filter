@@ -1,5 +1,6 @@
-import { Coord, getMapUrl, pointInPoly } from './coords';
+import { Area, Coord, getMapUrl, parsePositionFile, pointInPoly } from './coords';
 import { useEffect, useState } from 'preact/hooks';
+import useLocalStorage from './hooks/useLocalStorage';
 const brabrand: Coord[] = [
   [56.16087927816185, 10.105038391804111],
   [56.16028182448348, 10.11027406337594],
@@ -8,19 +9,17 @@ const brabrand: Coord[] = [
   [56.15825041246916, 10.107355820204756],
   [56.15860890474803, 10.104351746352068],
 ];
-const poly1: Coord[] = [
-  [1, 1],
-  [5, 5],
-  [4, 6],
-  [0, 2],
-];
+
 export function App() {
   const [img, setImg] = useState('');
+  const [areas, setAreas] = useState<Record<string, Area>>({});
   useEffect(() => {
-    getMapUrl([brabrand]).then((url) => setImg(url));
-  }, []);
+    getMapUrl(Object.values(areas)).then((url) => setImg(url));
+  }, [areas]);
   return (
     <>
+      <FileUpload id="Mark1" handleUpload={(area) => setAreas((prev) => ({ ...prev, [area.id]: area }))}></FileUpload>
+      <FileUpload id="Mark2" handleUpload={(area) => setAreas((prev) => ({ ...prev, [area.id]: area }))}></FileUpload>
       <div>
         <img src={img} alt="" />
       </div>
@@ -31,5 +30,37 @@ export function App() {
       <p>Udenfor {pointInPoly(brabrand, [56.160757265595734, 10.10148245726596])}</p>
       <p>Udenfor {pointInPoly(brabrand, [56.15813791435047, 10.106944688389326])}</p>
     </>
+  );
+}
+
+function FileUpload(props: { id: string; handleUpload: (area: Area) => void }) {
+  const [area, setArea] = useLocalStorage<Area | null>(props.id, null);
+  const [color, setColor] = useState(area?.color || '#0000ff');
+  useEffect(() => {
+    if (area) {
+      setArea({ ...area, color });
+    }
+  }, [color]);
+  useEffect(() => {
+    if (area) {
+      props.handleUpload(area);
+    }
+  }, [area]);
+  const loadFile = (e: any) => {
+    console.log(e.target!.files[0]);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      if (text) {
+        setArea({ id: props.id, coords: parsePositionFile(text)[0], color });
+      }
+    };
+    reader.readAsText(e.target!.files[0]);
+  };
+  return (
+    <div>
+      {props.id} <input type="file" name="upload" id="" onChange={(e) => loadFile(e)} />{' '}
+      <input type="color" value={color} onChange={(e: any) => setColor(e.target.value)} />
+    </div>
   );
 }

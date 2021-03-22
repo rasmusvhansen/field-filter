@@ -17,10 +17,7 @@ body {
 }
 
 #app {
-  text-align: center;
-
-  font-size: 1.5em;
-  padding-top: 100px;
+  padding: 1rem;
 }
 
 .link {
