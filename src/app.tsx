@@ -1,6 +1,7 @@
-import { Area, Coord, getMapUrl, parsePositionFile, pointInPoly } from './coords';
+import { Area, Coord, CoordWithTime, getMapUrl, parsePositionFile, pointInPoly } from './coords';
 import { useEffect, useState } from 'preact/hooks';
 import useLocalStorage from './hooks/useLocalStorage';
+import { ExcelUpload } from './ExcelUpload';
 const brabrand: Coord[] = [
   [56.16087927816185, 10.105038391804111],
   [56.16028182448348, 10.11027406337594],
@@ -12,12 +13,19 @@ const brabrand: Coord[] = [
 
 export function App() {
   const [img, setImg] = useState('');
+  const [track, setTrack] = useState<CoordWithTime[]>([]);
   const [areas, setAreas] = useState<Record<string, Area>>({});
+  const [fields, setFields] = useState<Record<string, Area>>({});
   useEffect(() => {
     getMapUrl(Object.values(areas)).then((url) => setImg(url));
   }, [areas]);
   return (
     <>
+      <ExcelUpload
+        onUpload={(t) => console.log(t)}
+        fields={Object.values(fields)}
+        areas={Object.values(areas)}
+      ></ExcelUpload>
       <FileUpload id="Mark1" handleUpload={(area) => setAreas((prev) => ({ ...prev, [area.id]: area }))}></FileUpload>
       <FileUpload id="Mark2" handleUpload={(area) => setAreas((prev) => ({ ...prev, [area.id]: area }))}></FileUpload>
       <div>

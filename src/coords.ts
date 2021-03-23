@@ -1,6 +1,21 @@
 import { hereApiKey } from './secret';
 
 export type Coord = [number, number];
+
+export interface CoordWithTime {
+  coord: Coord;
+  time: Date;
+  durationInMinutes: number;
+}
+
+export interface ResultCoord {
+  coord: string;
+  time: Date;
+  durationInMinutes: number;
+  inField: string | undefined;
+  inArea: string | undefined;
+}
+
 export interface Area {
   id: string;
   coords: Coord[];
@@ -24,7 +39,7 @@ export function pointInPoly(polygon: Coord[], [y, x]: Coord) {
     if (verty[i] > y != verty[j] > y && x < ((vertx[j] - vertx[i]) * (y - verty[i])) / (verty[j] - verty[i]) + vertx[i])
       c = !c;
   }
-  return `${y},${x} is ${c ? 'inside' : 'outside'} the polygon`;
+  return c;
 }
 
 export async function getMapUrl(areas: Array<Area>) {
