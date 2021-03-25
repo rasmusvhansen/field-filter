@@ -1,3 +1,4 @@
+import { useRef } from 'preact/hooks';
 import { read, utils, WorkSheet, writeFile } from 'xlsx';
 import { Area, Coord, CoordWithTime, pointInPoly, ResultCoord } from './coords';
 const MS_PER_MINUTE = 1000 * 60;
@@ -19,6 +20,8 @@ export function ExcelUpload({
   fields: Area[];
   areas: Area[];
 }) {
+  const fileRef = useRef<HTMLInputElement>();
+
   function handleFile(e: any) {
     var files = e.target.files,
       f = files[0];
@@ -56,6 +59,7 @@ export function ExcelUpload({
       const book = utils.book_new();
       utils.book_append_sheet(book, utils.json_to_sheet(result));
       writeFile(book, 'result.xlsx');
+      fileRef.current.value = '';
     };
 
     reader.readAsArrayBuffer(f);
@@ -63,7 +67,7 @@ export function ExcelUpload({
 
   return (
     <div>
-      <input type="file" name="upload" id="" onChange={(e) => handleFile(e)} />{' '}
+      <input type="file" name="upload" id="" onChange={(e) => handleFile(e)} ref={fileRef} />{' '}
     </div>
   );
 }
