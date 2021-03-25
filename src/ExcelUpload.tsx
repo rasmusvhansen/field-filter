@@ -1,6 +1,5 @@
 import { read, utils, WorkSheet, writeFile } from 'xlsx';
 import { Area, Coord, CoordWithTime, pointInPoly, ResultCoord } from './coords';
-const TRACK_INTERVAL_IN_MINUTES = 5;
 const MS_PER_MINUTE = 1000 * 60;
 interface Row {
   DateTimeStart: string;
@@ -34,12 +33,16 @@ export function ExcelUpload({
 
       const mapped: CoordWithTime[] = rows
         .filter((r) => !['Start', 'End'].includes(r.Status))
-        .map((r) => ({
+        .map((r, index, arr) => ({
           coord: r.Coordinates.split(/\s|,\s/).map((l) => +l) as [number, number],
           time: new Date(r.DateTime || r.DateTimeStart),
           durationInMinutes:
             r.Status === 'Stationary'
               ? (new Date(r.DateTimeEnd).getTime() - new Date(r.DateTimeStart).getTime()) / MS_PER_MINUTE
+              : arr[index + 1]
+              ? (new Date(arr[index + 1].DateTime || arr[index + 1].DateTimeStart).getTime() -
+                  new Date(r.DateTime).getTime()) /
+                MS_PER_MINUTE
               : 5,
         }));
 
