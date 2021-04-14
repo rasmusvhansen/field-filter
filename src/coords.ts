@@ -4,13 +4,16 @@ export type Coord = [number, number];
 
 export interface CoordWithTime {
   coord: Coord;
-  time: Date;
+  date: Date;
+  status: string;
   durationInMinutes: number;
 }
 
 export interface ResultCoord {
   coord: string;
-  time: Date;
+  status: string;
+  date: Date;
+  timeOfDay: string;
   durationInMinutes: number;
   inField: string | undefined;
   inArea: string | undefined;

@@ -38,7 +38,8 @@ export function ExcelUpload({
         .filter((r) => !['Start', 'End'].includes(r.Status))
         .map((r, index, arr) => ({
           coord: r.Coordinates.split(/\s|,\s/).map((l) => +l) as [number, number],
-          time: new Date(r.DateTime || r.DateTimeStart),
+          date: new Date(r.DateTime || r.DateTimeStart),
+          status: r.Status,
           durationInMinutes:
             r.Status === 'Stationary'
               ? (new Date(r.DateTimeEnd).getTime() - new Date(r.DateTimeStart).getTime()) / MS_PER_MINUTE
@@ -51,9 +52,16 @@ export function ExcelUpload({
 
       const result: ResultCoord[] = mapped.map((c) => ({
         ...c,
+        timeOfDay: c.date.toISOString().slice(11, 19),
         coord: `${c.coord[0]}, ${c.coord[1]}`,
-        inField: fields.find((f) => pointInPoly(f.coords, c.coord))?.id,
-        inArea: areas.find((a) => pointInPoly(a.coords, c.coord))?.id,
+        inField: fields
+          .filter((f) => pointInPoly(f.coords, c.coord))
+          .map((f) => f.id)
+          .join(', '),
+        inArea: areas
+          .filter((a) => pointInPoly(a.coords, c.coord))
+          .map((f) => f.id)
+          .join(', '),
       }));
       console.log(result);
       const book = utils.book_new();
