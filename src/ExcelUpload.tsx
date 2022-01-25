@@ -11,15 +11,7 @@ interface Row {
   Status: 'Stationary' | 'Start' | 'End' | 'Moving';
 }
 
-export function ExcelUpload({
-  fields,
-  areas,
-  onUpload,
-}: {
-  onUpload: (track: CoordWithTime[]) => void;
-  fields: Area[];
-  areas: Area[];
-}) {
+export function ExcelUpload({ fields, areas, onUpload }: { onUpload: (track: CoordWithTime[]) => void; fields: Area[]; areas: Area[] }) {
   const fileRef = useRef<HTMLInputElement>();
 
   function handleFile(e: any) {
@@ -44,15 +36,14 @@ export function ExcelUpload({
             r.Status === 'Stationary'
               ? (new Date(r.DateTimeEnd).getTime() - new Date(r.DateTimeStart).getTime()) / MS_PER_MINUTE
               : arr[index + 1]
-              ? (new Date(arr[index + 1].DateTime || arr[index + 1].DateTimeStart).getTime() -
-                  new Date(r.DateTime).getTime()) /
+              ? (new Date(arr[index + 1].DateTime || arr[index + 1].DateTimeStart).getTime() - new Date(r.DateTime).getTime()) /
                 MS_PER_MINUTE
               : 5,
         }));
 
       const result: ResultCoord[] = mapped.map((c) => ({
         ...c,
-        timeOfDay: c.date.toISOString().slice(11, 19),
+        timeOfDay: c.date.toTimeString().slice(0, 8),
         coord: `${c.coord[0]}, ${c.coord[1]}`,
         inField: fields
           .filter((f) => pointInPoly(f.coords, c.coord))
