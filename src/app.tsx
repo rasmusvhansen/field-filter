@@ -1,8 +1,8 @@
-import { Area, Coord, CoordWithTime, getMapUrl, parsePositionFile, pointInPoly } from './coords';
+import { Area, CoordWithTime, getMapUrl, parsePositionFile } from './coords';
 import { useEffect, useState } from 'preact/hooks';
 import useLocalStorage from './hooks/useLocalStorage';
-import { ExcelUpload } from './ExcelUpload';
 import './app.css';
+import { CsvUpload } from './CsvUpload';
 const DEFAULT_COLOR = '#0000ff';
 
 function without<T>(rec: Record<string, T>, id: string): Record<string, T> {
@@ -47,11 +47,7 @@ export function App() {
   }, [areas, fields]);
   return (
     <>
-      <ExcelUpload
-        onUpload={(t) => console.log(t)}
-        fields={Object.values(fields)}
-        areas={Object.values(areas)}
-      ></ExcelUpload>
+      <CsvUpload onUpload={(t) => console.log(t)} fields={Object.values(fields)} areas={Object.values(areas)}></CsvUpload>
       <div class="area-wrapper">
         <div>
           <h3>Marker</h3>
@@ -75,12 +71,7 @@ export function App() {
             <button onClick={createArea}>Opret Skovområde</button>
           </div>
           {Object.values(areas).map((area) => (
-            <Polygon
-              key={area.id}
-              area={area}
-              onUpload={(area) => setAreas({ ...areas, [area.id]: area })}
-              onDelete={removeArea}
-            ></Polygon>
+            <Polygon key={area.id} area={area} onUpload={(area) => setAreas({ ...areas, [area.id]: area })} onDelete={removeArea}></Polygon>
           ))}
         </div>
       </div>
@@ -92,15 +83,7 @@ export function App() {
   );
 }
 
-function Polygon({
-  area,
-  onUpload,
-  onDelete,
-}: {
-  area: Area;
-  onUpload: (area: Area) => void;
-  onDelete: (id: string) => void;
-}) {
+function Polygon({ area, onUpload, onDelete }: { area: Area; onUpload: (area: Area) => void; onDelete: (id: string) => void }) {
   const [color, setColor] = useState(area?.color || '#0000ff');
   const [newArea, setNewArea] = useState<Area | null>(null);
   useEffect(() => {

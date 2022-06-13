@@ -11,12 +11,12 @@ export interface CoordWithTime {
 
 export interface ResultCoord {
   coord: string;
-  status: string;
   date: Date;
   timeOfDay: string;
-  durationInMinutes: number;
   inField: string | undefined;
   inArea: string | undefined;
+  durationInMinutes: number;
+  accurate: boolean;
 }
 
 export interface Area {
@@ -39,17 +39,14 @@ export function pointInPoly(polygon: Coord[], [y, x]: Coord) {
 
   let j = nvert - 1;
   for (let i = 0; i < nvert; j = i++) {
-    if (verty[i] > y != verty[j] > y && x < ((vertx[j] - vertx[i]) * (y - verty[i])) / (verty[j] - verty[i]) + vertx[i])
-      c = !c;
+    if (verty[i] > y != verty[j] > y && x < ((vertx[j] - vertx[i]) * (y - verty[i])) / (verty[j] - verty[i]) + vertx[i]) c = !c;
   }
   return c;
 }
 
 export async function getMapUrl(areas: Array<Area>) {
   const baseUrl = `https://image.maps.ls.hereapi.com/mia/1.6/region?apiKey=${hereApiKey}&t=3&h=800&w=800`;
-  const coords = areas.map((area, i) =>
-    area.coords.reduce((str, [y, x]) => `${str}${y},${x},`, `&fc${i}=50${area.color.slice(1)}&a${i}=`)
-  );
+  const coords = areas.map((area, i) => area.coords.reduce((str, [y, x]) => `${str}${y},${x},`, `&fc${i}=50${area.color.slice(1)}&a${i}=`));
   const response = await fetch(baseUrl + coords + ``);
   const blob = await response.blob();
   return URL.createObjectURL(blob);
